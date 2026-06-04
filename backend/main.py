@@ -2,14 +2,13 @@ import os
 import shutil
 from fastapi import Depends, FastAPI, Security, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from numpy import isin
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import json
 
 from langchain_groq import ChatGroq
 from langchain_chroma import Chroma
-from langchain_community.embeddings import FastEmbedEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.document_loaders import PyPDFLoader
 
@@ -25,7 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-embedding_function = FastEmbedEmbeddings()
+embedding_function = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 vectorstore = Chroma(persist_directory="./chroma_db/", embedding_function=embedding_function)
 retriver = vectorstore.as_retriever(search_kwargs={"k": 3})
 
@@ -130,10 +129,9 @@ async def analyze_document(file: UploadFile = File(...)):
             return analysis_data
         except json.JSONDecodeError:
             return {"error": "Failed to parse analysis", "raw_content": clean_json_str}
-
-        os.remove(temp_filename)
-
-        return {"analysis": response.content}
+        finally:
+            if os.path.exists(temp_filename):
+                os.remove(temp_filename)
     except Exception as e:
         if os.path.exists(temp_filename):
             os.remove(temp_filename)

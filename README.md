@@ -72,6 +72,15 @@ Choose the plan that fits your needs. Get professional legal analysis for a frac
 *   **Database**: PostgreSQL (Neon), Drizzle ORM
 *   **Auth**: Better-Auth (Secure Session Management)
 
+## 🚧 Local Environment Setup
+
+Before running locally, create env files for both services:
+
+- `frontend/.env.local` from `frontend/.env.example`
+- `backend/.env` from `backend/.env.example`
+
+The frontend must have `DATABASE_URL`, and the backend must have `GROQ_API_KEY` and `INTERNAL_BACKEND_SECRET`.
+
 ---
 
 <div align="center">
